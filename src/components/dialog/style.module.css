@@ -1,0 +1,98 @@
+@value fontSize: 36px;
+@value headerPadding:  2px;
+
+:export {
+    fontSize: 36;
+    headerPadding: 2;
+}
+
+.dialog {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    z-index: 99;
+}
+
+.dialog__active {
+    display: block;
+}
+
+.shadow {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(241, 241, 241, 0.7);
+    z-index: 1000;
+}
+.main {
+    position: relative;
+    z-index: 1000;
+    background-color: #fff;
+    max-width: 100vw;
+    max-height: 100vh;
+    display: flex;
+    flex: 0 0 0;
+    margin: auto;
+    flex-direction: column;
+}
+.header {
+    display: flex;
+    flex-direction: row;
+    padding: headerPadding 7px;
+    border-bottom: 1px solid #aaa;
+    margin-bottom: -1px;
+}
+.header h2 {
+    margin: 0;
+}
+.title {
+    display: flex;
+    flex: 1 0 0;
+    overflow: hidden;
+}
+.btn {
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 64px;
+    height: fontSize;
+    font-size: 18px;
+    padding: 0 7px;
+    text-align: center;
+    line-height: fontSize;
+    cursor: pointer;
+    user-select: none;
+}
+.close {
+    composes: btn;
+    width: fontSize;
+    flex-basis: fontSize;
+}
+.close i {
+    font-size: 34px;
+}
+.ok {
+    composes: btn;
+    background-color: powderblue;
+}
+.footer {
+    display: flex;
+    border-top: 1px solid #aaa;
+    margin-top: -1px;
+}
+.footer__default {
+    display: flex;
+    justify-content: flex-end;
+    flex: 1;
+}
+.content {
+    display: flex;
+    overflow: hidden;
+    padding: 15px;
+    box-sizing: border-box;
+    flex-direction: column;
+}

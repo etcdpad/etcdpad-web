@@ -1,0 +1,120 @@
+.tabs {
+    width: 100%;
+    height: 100%;
+    background: #1e1e1e;
+    color: #fff;
+}
+
+.tab {
+    display: flex;
+    position: relative;
+    flex: 0 0 120px;
+    max-width: 300px;
+    height: 28px;
+    margin: 0 4px;
+    padding: 2px 7px;
+    box-sizing: content-box;
+    border-bottom: 4px solid #1e1e1e;
+}
+.tab_active {
+    composes: tab;
+    border-bottom: 4px solid #ccc;
+}
+
+.icon {
+    display: flex;
+    margin-top: 2px;
+    width: 26px;
+    height: 26px;
+    flex: 0 0 26px;
+}
+
+.icon::after {
+    content: ' ';
+    display: block;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background-color: #ccc;
+    align-self: center;
+    margin: auto;
+}
+
+.icon_modify {
+    composes: icon;
+}
+.icon_modify::after {
+    content: ' ';
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ccc;
+    align-self: center;
+    margin: auto;
+}
+
+.title {
+    display: block;
+    padding-right: 24px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 32px;
+}
+
+.btnClose {
+    position: absolute;
+    right: 5px;
+    display: block;
+    height: 24px;
+    width: 24px;
+    text-align: center;
+    padding: 0;
+    margin: 4px;
+    border-radius: 50%;
+    background-color: red;
+}
+
+.btnClose:hover {
+    box-shadow: 0 0 1px 1px rgb(255, 73, 73);
+}
+
+.btnClose i {
+    font-size: 18px;
+    display: block;
+    line-height: 24px;
+    font-weight: 900;
+    color: #fff;
+    text-align: center;
+}
+
+.tabbar {
+    width: 100%;
+    height: 36px;
+    display: flex;
+    flex-direction: row;
+}
+
+
+.panes {
+    width: 100%;
+    height: calc(100% - 36px);
+    position: relative;
+    overflow: hidden;
+}
+
+.pane {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+}
+.pane_active {
+    composes: pane;
+    z-index: 1;
+}

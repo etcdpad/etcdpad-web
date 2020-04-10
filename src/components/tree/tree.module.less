@@ -1,0 +1,140 @@
+@item-height: 36px;
+@item-font-size: 20px;
+@padding: 26px;
+@plugin-padding: @padding / 2;
+@main-color: rgb(0, 168, 247);
+
+:local {
+    .view {
+        font-size: @item-font-size;
+        height: 100%;
+        position: relative;
+    }
+
+    .helper {
+        position: absolute;
+        right: 10px;
+        z-index: 2;
+        position: absolute;
+    }
+
+    .main {
+        height: 100%;
+    }
+
+    .item {
+        // padding-left: @padding;
+        width: 100%;
+        margin: 0;
+        user-select: none;
+        display: block;
+    }
+    .item i {
+        font-size: @item-font-size;
+        line-height: @item-font-size;
+    }
+    .item__active {
+        composes: item;
+    }
+    .item__active>.wrapper {
+        background-color: #444 !important;
+    }
+
+    .item__active>.subtitle {
+        color: #fff;
+    }
+
+    .padding {
+        height: @item-height * 5;
+    }
+
+    .wrap {
+        margin-left: -10px;
+        height: 100%;
+    }
+
+    .menu {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+    .menu_active {
+        composes: menu;
+        display: block;
+    }
+
+
+    .menu::after {
+        content: " ";
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 798;
+    }
+
+    .menuWrap {
+        position: absolute;
+        border: 1px black solid;
+        box-shadow: #aaa 2px 2px 2px;
+        width: 280px;
+        z-index: 799;
+        background-color: #fff;
+    }
+
+    .menuItem {
+        padding-left: 12px;
+        width: 100%;
+        min-height: @item-height;
+        line-height: @item-height;
+        cursor: default;
+        box-sizing: border-box;
+    }
+    .menuItem:not(.menuItem__disable):hover {
+        background-color: #888;
+        color: #fff;
+    }
+    .menuItem__disable {
+        composes: menuItem;
+        color: #ccc;
+        cursor: not-allowed;
+    }
+
+    .subtitle {
+        height: @item-height;
+        line-height: @item-height;
+        font-weight: 400;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .wrapper {
+        cursor: pointer;
+        position: absolute;
+        width: 100%;
+        left: 0;
+        right: 0;
+        display: inline-block;
+        height: @item-height;
+        z-index: 1;
+    }
+
+    .title {
+        position: relative;
+        display: inline;
+        z-index: 2;
+    }
+
+    .subtitle:hover .wrapper {
+        background-color: #888;
+    }
+
+    .sublist {
+        margin: 0;
+        padding-left: @padding;
+    }
+}

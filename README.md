@@ -1,24 +1,18 @@
-# etcdpad
+# etcdpad-web
 
-## Project setup
-```
-yarn install
-```
+a web UI for etcd.
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
+## features
 
-### Compiles and minifies for production
-```
-yarn build
-```
+- get, put, del keys
+- get prefix
+- watch and auto update view
+- editor with garmmer (plain, json ...)
 
-### Lints and fixes files
-```
-yarn lint
-```
+## Usage
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Docker Compose
+
+### Docker Swarm
+
+### k8s
