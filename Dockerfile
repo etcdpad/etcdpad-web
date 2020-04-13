@@ -12,4 +12,4 @@ COPY ./deploy/entrypoint.sh /entrypoint.sh
 RUN apk add --update --no-cache bash
 
 ENTRYPOINT [ "/entrypoint.sh" ]
-CMD [ "nginx", "-g", "'daemon off;'" ]
+CMD [ "nginx", "-g", "daemon off;" ]

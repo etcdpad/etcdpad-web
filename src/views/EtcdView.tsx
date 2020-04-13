@@ -35,7 +35,15 @@ enum TrimType {
 }
 
 const DSN_REGEXP = /^(?:etcd:\/\/)?[^/]+(?:([a-zA-Z0-9/_-]+)(?:\?(.+))?)?$/
-const CORE_URL = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/epad/ws`
+const BASE_PATH = function(path: string): string {
+    if (path.endsWith('/')) return path
+    const index = path.lastIndexOf('/')
+    if (index > 0) {
+        return path.slice(0, index)
+    }
+    return '/'
+}(location.pathname)
+const CORE_URL = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}${BASE_PATH}/epad/ws`
 
 @Component
 export default class EtcdView extends Vue<EtcdViewParams> {
