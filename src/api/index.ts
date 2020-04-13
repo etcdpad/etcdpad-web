@@ -2,6 +2,13 @@ import { EventEmitter } from 'events'
 import { Channel, ChannelState } from 'node-channel'
 import { CommunicateResponse, CommunicateMessage, MessageType, CommunicateSuccessResponse, KeyValue, EtcdEvent, EtcdCreateEvent, EtcdDeleteEvent, EtcdQueryEvent, ResponseHeader, EtcdPrefixQueryEvent, CommunicateWatchEventResponse, isCommunicateWatchEventResponse, EtcdUpdateEvent, KeyOnly } from '@/spec'
 import { IncGen } from './inc'
+import { decode } from '@/utils/base64'
+
+function calcEndkey(key: string): string {
+    if (key === '\x00' || key.length === 0) return '\x00'
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return key.slice(0, -1) + String.fromCodePoint(key.codePointAt(key.length - 1)! + 1)
+}
 
 
 function waitAsync(ms: number) {
@@ -48,7 +55,7 @@ export class EtcdPad extends EventEmitter {
             this.timer = 0
         }
         await waitAsync(2000)
-        this.ws = new WebSocket(this.backendUrl+ '?dsn='+ encodeURIComponent(`etcd://${this.endpoint}`))
+        this.ws = new WebSocket(this.backendUrl+ '?dsn='+ encodeURIComponent(this.endpoint))
         this.ws.addEventListener('open', () => this.emit(EtcdPadEvent.Reconnect))
         this.prepare()
     }
@@ -193,16 +200,15 @@ export class EtcdPad extends EventEmitter {
         setTimeout(async () => {
             try {
                 let p = ''
+                const endkey = calcEndkey(key)
                 while (chan.state === ChannelState.Open) {
                     try {
                         const result = await this.call(MessageType.Query, {
                             key: p || key,
+                            endkey,
                             prefix,
-                            limit: 100,
+                            limit: 1,
                         }) as CommunicateSuccessResponse<EtcdPrefixQueryEvent>
-                        if (p) {
-                            result.event.kvs.shift()
-                        }
                         for (const item of result.event.kvs) {
                             await chan.add(item)
                         }
@@ -211,7 +217,7 @@ export class EtcdPad extends EventEmitter {
                             await chan.close()
                             return
                         }
-                        p = atob(last.key)
+                        p = decode(last.key) + '\x00'
                     } catch (error) {
                         // eslint-disable-next-line no-console
                         console.error(error)

@@ -12,6 +12,7 @@ export interface CommunicateMessage {
     id: string
     action: MessageType
     key?: string
+    endkey?: string
     val?: string
     lease?: number
     limit?: number

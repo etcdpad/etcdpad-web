@@ -1,13 +1,17 @@
 import { ITreeFile, TreeNodeType, ITreeDir, ITreeNode, isFile, isDir } from '@/components/tree'
 import { decode } from './base64'
 
+function nodeEq<T>(node: DirTreeNode<T>, name: string): boolean {
+    return node.name === name || (node.name === '/' && name === '')
+}
+
 export abstract class BaseDirTreeNodeDir<T> {
     public abstract type: TreeNodeType
     public fullPath: string
     public name: string
     public readonly children: DirTreeNode<T>[] = []
     public constructor(name: string, fullPath: string) {
-        this.name = name
+        this.name = name || '/'
         this.fullPath = fullPath
     }
     public append(paths: string[], stat: T) {
@@ -15,7 +19,7 @@ export abstract class BaseDirTreeNodeDir<T> {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const name = paths.shift()!
         if (paths.length === 0) {
-            const index = this.children.findIndex(x => x.name === name)
+            const index = this.children.findIndex(x => nodeEq(x, name))
             let subdir: DirTreeNode<T>
             if (index === -1) {
                 // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -30,7 +34,7 @@ export abstract class BaseDirTreeNodeDir<T> {
                 this.children.splice(index, 1 , subdir)
             }
         } else {
-            const index = this.children.findIndex(x => x.name === name)
+            const index = this.children.findIndex(x => nodeEq(x, name))
             let subdir: DirTreeNode<T>
             if (index === -1) {
                 // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -51,13 +55,13 @@ export abstract class BaseDirTreeNodeDir<T> {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const name = paths.shift()!
         if (paths.length === 0) {
-            const node = this.children.find(x => x.name === name)
+            const node = this.children.find(x => nodeEq(x, name))
             if (!node) return false
             if (!isFile(node)) return false
             node.stat = stat
             return true
         } else {
-            const node = this.children.find(x => x.name === name)
+            const node = this.children.find(x => nodeEq(x, name))
             if (!node) return false
             if (!isDir(node)) return false
             return node.change(paths, stat)
@@ -68,7 +72,7 @@ export abstract class BaseDirTreeNodeDir<T> {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const name = paths.shift()!
         if (paths.length === 0) {
-            const index = this.children.findIndex(x => x.name === name)
+            const index = this.children.findIndex(x => nodeEq(x, name))
             if (index === -1) return false
             const node = this.children[index]
             if (node.type === TreeNodeType.FileDirectory) {
@@ -78,7 +82,7 @@ export abstract class BaseDirTreeNodeDir<T> {
             }
             return true
         } else {
-            const node = this.children.find(x => x.name === name)
+            const node = this.children.find(x => nodeEq(x, name))
             if (!node) return false
             if (!isDir(node)) return false
             return node.remove(paths)

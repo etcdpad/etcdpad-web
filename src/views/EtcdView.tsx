@@ -34,7 +34,7 @@ enum TrimType {
     Both = 3,
 }
 
-const DSN_REGEXP = /^(?:etcd:\/\/)?[^/]+(?:([a-zA-Z0-9/_-]+)(?:\?(.+))?)?$/
+const DSN_REGEXP = /^(?:etcd:\/\/)?(?:([^@]+)@)?([^/]+)(?:([a-zA-Z0-9/_-]+)(?:\?(.+))?)?$/
 const BASE_PATH = function(path: string): string {
     if (path.endsWith('/')) return path
     const index = path.lastIndexOf('/')
@@ -132,19 +132,18 @@ export default class EtcdView extends Vue<EtcdViewParams> {
             console.error('[parse dsn]', DSN_REGEXP, this.dsn)
             return
         }
-        const [endpoints, prefix = '/', options = {}] = path
+        const [endpoints, auth, hosts, prefix = '\x00', options = {}] = path
         // eslint-disable-next-line no-console
-        console.info('[connnect] [%s] prefix: [%s] option:', endpoints, prefix, options)
+        console.info('[connnect] [%s] [%s] prefix: [%s] option:', auth, endpoints, prefix, options)
         const chan = this.channel = await this.etcdpad.get(prefix, true)
         this.data = new Map<string, KeyOnly>()
-        this.tree = new DirTreeNodeDir<KeyOnly>('/', '')
+        this.tree = new DirTreeNodeDir<KeyOnly>(hosts, '')
         while (chan.state !== ChannelState.CLosed) {
             const item = await chan.get()
             if (!item) continue
             const key = decode(item.key)
             this.data.set(key, item)
             const paths = key.split(/\//g)
-            paths.shift() // delete first empty
             this.tree.append(paths, item)
         }
     }

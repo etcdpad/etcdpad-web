@@ -92,7 +92,7 @@ export default class SpliterPanel extends Vue {
     top: 0;
     right: 0;
     bottom: 0;
-    z-index: 1;
+    z-index: 10;
     cursor: ew-resize;
 }
 .spliter-toggle {
