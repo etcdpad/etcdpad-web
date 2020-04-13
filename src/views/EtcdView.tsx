@@ -43,7 +43,7 @@ const BASE_PATH = function(path: string): string {
     }
     return '/'
 }(location.pathname)
-const CORE_URL = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}${BASE_PATH}/epad/ws`
+const CORE_URL = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}${BASE_PATH}epad/ws`
 
 @Component
 export default class EtcdView extends Vue<EtcdViewParams> {

@@ -31,7 +31,7 @@ export class EtcdPad extends EventEmitter {
         this.endpoint = endpoint
         this.timeout = timeout
         // etcd://[username:password@]host1:port1[,...hostN:portN][/[defaultPrefix][?options]]
-        this.ws = new WebSocket(this.backendUrl+ '?dsn='+ encodeURIComponent(`etcd://${endpoint}`))
+        this.ws = new WebSocket(this.backendUrl+ '?dsn='+ encodeURIComponent(endpoint))
         this.ws.addEventListener('open', () => this.emit(EtcdPadEvent.Open))
         this.prepare()
     }
