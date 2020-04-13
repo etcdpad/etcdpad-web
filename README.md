@@ -18,10 +18,10 @@ version: "3"
 
 services:
     api:
-        image: etcdpad/api:v0.0.1-rc1
+        image: etcdpad/api:latest
         command: ["-port", "8989", "-stdout", "true"]
     web:
-        image: etcdpad/web:v0.0.1-rc0
+        image: etcdpad/web:latest
         ports:
           - "12379:12379"
         depends_on:
