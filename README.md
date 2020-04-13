@@ -4,10 +4,13 @@ a web UI for etcd.
 
 ## features
 
-- get, put, del keys
-- get prefix
-- watch and auto update view
-- editor with garmmer (plain, json ...)
+- [x] get, put, del keys
+- [x] get prefix
+- [x] watch and auto update view
+- [x] editor with garmmer (plain, json ...)
+- [ ] reflash
+- [ ] rversion view
+- [ ] ttl
 
 ## Usage
 
@@ -32,8 +35,3 @@ services:
 
 ```
 
-## RoadMap
-
-- [ ] Reflash
-- [ ] rversion view
-- [ ] ttl
