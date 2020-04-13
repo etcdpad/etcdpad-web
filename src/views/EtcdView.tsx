@@ -8,7 +8,7 @@ import { CodeEditor, CodeEditorEvents } from '@/components/editor'
 import { Dialog } from '@/components/dialog'
 import { EtcdPad, EtcdPadEvent } from '@/api'
 import { KeyOnly, KeyValue, EtcdCreateEvent, EtcdDeleteEvent, EtcdUpdateEvent, EtcdEventType } from '@/spec'
-import { DirTreeNodeDir, key2paths } from '@/utils/dir_tree'
+import { key2paths, DirTreeRoot } from '@/utils/dir_tree'
 import { decode } from '@/utils/base64'
 import style from './etcd.module.css'
 import { MenuItem } from '@/components/tree/TreeView'
@@ -137,7 +137,7 @@ export default class EtcdView extends Vue<EtcdViewParams> {
         console.info('[connnect] [%s] [%s] prefix: [%s] option:', auth, endpoints, prefix, options)
         const chan = this.channel = await this.etcdpad.get(prefix, true)
         this.data = new Map<string, KeyOnly>()
-        this.tree = new DirTreeNodeDir<KeyOnly>(hosts, '')
+        this.tree = new DirTreeRoot<KeyOnly>(hosts, '')
         while (chan.state !== ChannelState.CLosed) {
             const item = await chan.get()
             if (!item) continue
@@ -160,12 +160,12 @@ export default class EtcdView extends Vue<EtcdViewParams> {
         disable: node => !isFile(node),
     }, {
         id: 'history',
-        title: 'History',
+        title: 'History (Coming soon)',
         disable: () => true,
     }]
     @Ref('editor')
     private editor!: CodeEditor
-    private tree = new DirTreeNodeDir<KeyOnly>('/', '')
+    private tree = new DirTreeRoot<KeyOnly>('/', '')
     private showAddDialog() {
         this.isShowAddDialog = true
         this.$nextTick(() => {

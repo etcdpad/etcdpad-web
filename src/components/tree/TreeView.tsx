@@ -64,7 +64,8 @@ export default class TreeView<T> extends Vue<VTreeView<T>, VTreeViewEvent<T>> {
         </div>
     }
     private collapses: Record<string, boolean> = {
-        '/': true
+        '/': true,
+        '': true,
     }
     private menuPosition = {
         left: '120px',

@@ -6,6 +6,7 @@ function nodeEq<T>(node: DirTreeNode<T>, name: string): boolean {
 }
 
 export abstract class BaseDirTreeNodeDir<T> {
+    protected root = false
     public abstract type: TreeNodeType
     public fullPath: string
     public name: string
@@ -18,12 +19,13 @@ export abstract class BaseDirTreeNodeDir<T> {
         if (paths.length === 0) return
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const name = paths.shift()!
+        const nextFullpath = this.root ? name : (this.fullPath + '/' + name)
         if (paths.length === 0) {
             const index = this.children.findIndex(x => nodeEq(x, name))
             let subdir: DirTreeNode<T>
             if (index === -1) {
                 // eslint-disable-next-line @typescript-eslint/no-use-before-define
-                subdir = new DirTreeNodeFile(name, this.fullPath + '/' + name, stat)
+                subdir = new DirTreeNodeFile(name, nextFullpath, stat)
                 this.children.push(subdir)
             } else {
                 subdir = this.children[index]
@@ -38,7 +40,7 @@ export abstract class BaseDirTreeNodeDir<T> {
             let subdir: DirTreeNode<T>
             if (index === -1) {
                 // eslint-disable-next-line @typescript-eslint/no-use-before-define
-                subdir = new DirTreeNodeDir<T>(name, this.fullPath + '/' + name)
+                subdir = new DirTreeNodeDir<T>(name, nextFullpath)
                 this.children.push(subdir)
             } else {
                 subdir = this.children[index]
@@ -133,6 +135,13 @@ export class DirTreeNodeDir<T> extends BaseDirTreeNodeDir<T> implements ITreeDir
     }
     public toDirFile(stat: T): DirTreeNodeDirFile<T> {
         return new DirTreeNodeDirFile(this.name, this.fullPath, stat)
+    }
+}
+
+export class DirTreeRoot<T> extends DirTreeNodeDir<T> {
+    public constructor(name: string, fullPath: string) {
+        super(name, fullPath)
+        this.root = true
     }
 }
 
