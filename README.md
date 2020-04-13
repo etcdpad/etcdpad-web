@@ -32,6 +32,8 @@ services:
 
 ```
 
-### Docker Swarm
+## RoadMap
 
-### k8s
+- [ ] Reflash
+- [ ] rversion view
+- [ ] ttl
