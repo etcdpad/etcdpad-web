@@ -3,6 +3,15 @@
     width: 100%;
     height: 100%;
 }
+.tab_key {
+    display: flex;
+    padding: 2px 15px;
+    color: #e1e1e1;
+}
+.tab_key input {
+    border: none;
+    background-color: transparent;
+}
 .key {
     display: flex;
     flex-grow: 1;

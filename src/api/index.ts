@@ -42,6 +42,9 @@ export class EtcdPad extends EventEmitter {
         this.ws.addEventListener('open', () => this.emit(EtcdPadEvent.Open))
         this.prepare()
     }
+    public close() {
+        this.ws.close()
+    }
     private prepare() {
         this.ws.addEventListener('message', (message) => this.dispatch(message.data))
         this.ws.addEventListener('close', () => this.reconnect())
@@ -207,7 +210,7 @@ export class EtcdPad extends EventEmitter {
                             key: p || key,
                             endkey,
                             prefix,
-                            limit: 1,
+                            limit: 100,
                         }) as CommunicateSuccessResponse<EtcdPrefixQueryEvent>
                         for (const item of result.event.kvs) {
                             await chan.add(item)

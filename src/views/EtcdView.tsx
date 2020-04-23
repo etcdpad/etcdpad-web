@@ -1,7 +1,7 @@
 import { Component, Prop, Emit, Ref } from 'vue-property-decorator'
 import { ChannelState, Channel } from 'node-channel'
 import { Vue } from '@/tsx'
-import { TreeView, ITreeNode, isFile } from '@/components/tree'
+import { TreeView, ITreeNode, isFile, isDir } from '@/components/tree'
 import { SpliterPanel } from '@/components/spliter_panel'
 import { TabPane, Tabs } from '@/components/tabs'
 import { CodeEditor, CodeEditorEvents } from '@/components/editor'
@@ -12,6 +12,7 @@ import { key2paths, DirTreeRoot } from '@/utils/dir_tree'
 import { decode } from '@/utils/base64'
 import style from './etcd.module.css'
 import { MenuItem } from '@/components/tree/TreeView'
+import CopyTextView from '@/components/copytextview'
 
 export interface EtcdViewParams {
     dsn: string
@@ -67,13 +68,16 @@ export default class EtcdView extends Vue<EtcdViewParams> {
         }
         if (this.tabActive === key) {
             if (index > 0) {
-                this.tabActive = decode(this.values[index - 1].key)
+                this.tabActive = this.values[index - 1].key
             } else if (this.values.length > 0) {
-                this.tabActive = decode(this.values[0].key)
+                this.tabActive = this.values[0].key
             } else {
                 this.tabActive = ''
             }
         }
+    }
+    private reflash() {
+        this.updateRoot()
     }
     // eslint-enable
     private async mounted() {
@@ -93,6 +97,10 @@ export default class EtcdView extends Vue<EtcdViewParams> {
                 for (const item of event.kvs) {
                     this.tree.append(key2paths(item.key), item)
                     this.data.set(decode(item.key), item)
+                    const value = this.values.find(x => x.key === decode(item.key))
+                    if (value) {
+                        value.value = decode(item.value)
+                    }
                 }
                 break
             case EtcdEventType.Delete: {
@@ -134,10 +142,10 @@ export default class EtcdView extends Vue<EtcdViewParams> {
         }
         const [endpoints, auth, hosts, prefix = '\x00', options = {}] = path
         // eslint-disable-next-line no-console
-        console.info('[connnect] [%s] [%s] prefix: [%s] option:', auth, endpoints, prefix, options)
+        console.info('[updateRoot] [%s] [%s] prefix: [%s] option:', auth, endpoints, prefix, options)
         const chan = this.channel = await this.etcdpad.get(prefix, true)
         this.data = new Map<string, KeyOnly>()
-        this.tree = new DirTreeRoot<KeyOnly>(hosts, '')
+        this.tree = new DirTreeRoot<KeyOnly>(hosts, '/')
         while (chan.state !== ChannelState.CLosed) {
             const item = await chan.get()
             if (!item) continue
@@ -148,38 +156,52 @@ export default class EtcdView extends Vue<EtcdViewParams> {
         }
     }
     private async save(key: string, value: string) {
-        if (this.data.get(decode(key))?.value === value) return
+        if (this.data.get(key)?.value === value) return
         if (!await this.etcdpad.put(key, value)) {
             // eslint-disable-next-line no-console
             console.error('[save]', [key, value])
         }
     }
     private menulist: MenuItem<KeyOnly>[] = [{
-        id: 'delete',
-        title: 'Delete',
+        id: 'delete_key',
+        title: 'Delete this key',
         disable: node => !isFile(node),
     }, {
+        id: 'delete_prefix',
+        title: 'Delete this prefix',
+        disable: node => !isDir(node),
+    }, {
         id: 'history',
-        title: 'History (Coming soon)',
+        title: 'Last Version (Coming soon)',
         disable: () => true,
     }]
     @Ref('editor')
     private editor!: CodeEditor
-    private tree = new DirTreeRoot<KeyOnly>('/', '')
+    private tree = new DirTreeRoot<KeyOnly>('/localhost', '/')
     private showAddDialog() {
         this.isShowAddDialog = true
         this.$nextTick(() => {
             this.editor.layout()
         })
     }
-    private async handleMenu(payload: { node: ITreeNode<KeyOnly>; id: string }) {
+    private async delete(path: string, prefix: boolean) {
         try {
-            await this.etcdpad.del(payload.node.fullPath)
+            await this.etcdpad.del(path, prefix)
         } catch (err) {
             // eslint-disable-next-line no-console
             console.error('[create fail]', err)
             alert('create fail')
             return
+        }
+    }
+    private async handleMenu(payload: { node: ITreeNode<KeyOnly>; id: string }) {
+        switch(payload.id) {
+            case 'delete_key':
+                return this.delete(payload.node.fullPath, false)
+            case 'delete_prefix':
+                return this.delete(payload.node.fullPath, true)
+            case 'history':
+                return
         }
     }
     private async addRecord() {
@@ -222,11 +244,13 @@ export default class EtcdView extends Vue<EtcdViewParams> {
                 <TreeView data={this.tree} menulist={this.menulist} onChoose={this.handleTree} onMenu={this.handleMenu} slot="front">
                     <div class="btn-group" slot="helper">
                         <button onClick={ this.showAddDialog }>Add New</button>
+                        <button onClick={ this.reflash }>Reflash</button>
                     </div>
                 </TreeView>
                 <Tabs class={style.preview} onClose={this.closeTab} onInput={v => this.tabActive = v} value={this.tabActive} slot="end">
                     { this.values.map(x => {
                         return <TabPane isModify={ x.value !== x.ssv } name={x.key} title={x.key} key={x.key}>
+                            <CopyTextView dark noborder label="full key:" value={x.key}></CopyTextView>
                             <EditorPane x={x} key={x.key} onInput={ value => x.value = value } onSave={value => this.save(x.key, value)}></EditorPane>
                         </TabPane>
                     })}

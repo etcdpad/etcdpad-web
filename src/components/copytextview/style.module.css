@@ -1,0 +1,36 @@
+.text_pb__noborder {
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: center;
+    justify-items: center;
+}
+.text_pb {
+    composes: text_pb__noborder;
+    border: 1px #eee solid;
+    border-radius: 5px;
+}
+.label {
+    padding: 4px 10px;
+    border-right: 1px #eee solid;
+    color: #e1e1e1;
+}
+.preview {
+    padding: 4px 10px;
+    color: #888;
+}
+.btn {
+    font-size: 20px;
+    width: 24px;
+    padding: 4px 4px 4px 0;
+    cursor: pointer;
+    display: flex;
+    align-content: center;
+    align-items: center;
+}
+
+.dark .label {
+    border-right: none;
+}
+.dark .preview {
+    color: #eee;
+}

@@ -5,6 +5,16 @@ function nodeEq<T>(node: DirTreeNode<T>, name: string): boolean {
     return node.name === name || (node.name === '/' && name === '')
 }
 
+function sortedInsert<T>(node: BaseDirTreeNodeDir<T>, child: DirTreeNode<T>): void {
+    let index = 0
+    for (; index < node.children.length; index++) {
+        if (child.name.localeCompare(node.children[index].name) < 0) {
+            break
+        }
+    }
+    node.children.splice(index, 0, child)
+}
+
 export abstract class BaseDirTreeNodeDir<T> {
     protected root = false
     public abstract type: TreeNodeType
@@ -20,28 +30,13 @@ export abstract class BaseDirTreeNodeDir<T> {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const name = paths.shift()!
         const nextFullpath = this.root ? name : (this.fullPath + '/' + name)
-        if (paths.length === 0) {
-            const index = this.children.findIndex(x => nodeEq(x, name))
-            let subdir: DirTreeNode<T>
-            if (index === -1) {
-                // eslint-disable-next-line @typescript-eslint/no-use-before-define
-                subdir = new DirTreeNodeFile(name, nextFullpath, stat)
-                this.children.push(subdir)
-            } else {
-                subdir = this.children[index]
-                if (subdir.type !== TreeNodeType.Directory) {
-                    throw new Error('dup file')
-                }
-                subdir = subdir.toDirFile(stat)
-                this.children.splice(index, 1 , subdir)
-            }
-        } else {
+        if (paths.length > 0) {
             const index = this.children.findIndex(x => nodeEq(x, name))
             let subdir: DirTreeNode<T>
             if (index === -1) {
                 // eslint-disable-next-line @typescript-eslint/no-use-before-define
                 subdir = new DirTreeNodeDir<T>(name, nextFullpath)
-                this.children.push(subdir)
+                sortedInsert(this, subdir)
             } else {
                 subdir = this.children[index]
                 if (subdir.type === TreeNodeType.File) {
@@ -50,6 +45,21 @@ export abstract class BaseDirTreeNodeDir<T> {
                 }
             }
             subdir.append(paths, stat)
+            return
+        }
+        const index = this.children.findIndex(x => nodeEq(x, name))
+        let subdir: DirTreeNode<T>
+        if (index === -1) {
+            // eslint-disable-next-line @typescript-eslint/no-use-before-define
+            subdir = new DirTreeNodeFile(name, nextFullpath, stat)
+            sortedInsert(this, subdir)
+        } else {
+            subdir = this.children[index]
+            if (subdir.type !== TreeNodeType.Directory) {
+                throw new Error('dup file')
+            }
+            subdir = subdir.toDirFile(stat)
+            this.children.splice(index, 1 , subdir)
         }
     }
     public change(paths: string[], stat: T): boolean {
@@ -73,22 +83,26 @@ export abstract class BaseDirTreeNodeDir<T> {
         if (paths.length === 0) return false
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const name = paths.shift()!
-        if (paths.length === 0) {
+        if (paths.length > 0) {
             const index = this.children.findIndex(x => nodeEq(x, name))
-            if (index === -1) return false
             const node = this.children[index]
-            if (node.type === TreeNodeType.FileDirectory) {
-                this.children.splice(index, 1, node.toDir())
-            } else {
-                this.children.splice(index, 1)
-            }
-            return true
-        } else {
-            const node = this.children.find(x => nodeEq(x, name))
             if (!node) return false
             if (!isDir(node)) return false
-            return node.remove(paths)
+            const res = node.remove(paths)
+            if (!isFile(node) && node.children.length === 0) {
+                this.children.splice(index, 1)
+            }
+            return res
         }
+        const index = this.children.findIndex(x => nodeEq(x, name))
+        if (index === -1) return false
+        const node = this.children[index]
+        if (node.type === TreeNodeType.FileDirectory) {
+            this.children.splice(index, 1, node.toDir())
+        } else {
+            this.children.splice(index, 1)
+        }
+        return true
     }
 }
 
@@ -153,6 +167,5 @@ export function isDirTreeNode<T>(node: ITreeNode<T>): node is DirTreeNode<T> {
 
 export function key2paths(key: string, encode: 'base64' | 'none' = 'base64'): string[] {
     const paths = (encode === 'base64' ? decode(key) : key).split(/\//g)
-    paths.shift()
     return paths
 }

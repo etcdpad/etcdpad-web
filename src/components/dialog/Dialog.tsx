@@ -24,7 +24,7 @@ export interface VDialogEvent {
 }
 
 @Component
-export default class Dialog extends Vue<VDialog, VDialogEvent> {
+export class Dialog extends Vue<VDialog, VDialogEvent> {
     @Prop()
     private value!: boolean
     @Prop({ default: 600 })

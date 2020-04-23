@@ -8,7 +8,9 @@ a web UI for etcd.
 - [x] get prefix
 - [x] watch and auto update view
 - [x] editor with garmmer (plain, json ...)
-- [ ] reflash
+- [x] watch/get all support
+- [x] full key view and copy
+- [x] reflash
 - [ ] rversion view
 - [ ] ttl
 

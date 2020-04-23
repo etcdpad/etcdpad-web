@@ -1,1 +1,1 @@
-export { default as Dialog, VDialog, VDialogEvent } from './Dialog'
+export { Dialog, VDialog, VDialogEvent } from './Dialog'

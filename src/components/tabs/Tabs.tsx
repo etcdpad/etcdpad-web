@@ -1,5 +1,5 @@
 import { Component, Prop } from 'vue-property-decorator'
-import { Vue, } from '@/tsx'
+import { Vue } from '@/tsx'
 import { ScrollView } from '@/components/scrollview'
 import { VTabPane } from './TabPane'
 import style from './style.module.css'
