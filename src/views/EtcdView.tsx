@@ -149,7 +149,6 @@ export default class EtcdView extends Vue<EtcdViewParams> {
         }
         const [endpoints, auth, hosts, prefix = '\x00', options = {}] = path
         // eslint-disable-next-line no-console
-        console.info('[updateRoot] dns: [%s] regexp: [%s], path:', this.dsn, DSN_REGEXP, path)
         console.info('[updateRoot] [%s] [%s] prefix: [%s], option:', auth, endpoints, prefix, options)
         const chan = this.channel = await this.etcdpad.get(prefix, true)
         this.data = new Map<string, KeyOnly>()
