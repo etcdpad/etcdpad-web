@@ -6,7 +6,7 @@ module.exports = {
     devServer: {
         proxy: {
             '/epad': {
-                target: 'http://10.101.44.14:8989',
+                target: 'http://10.181.20.50:8989',
                 ws: true,
                 // changeOrigin: true
             },

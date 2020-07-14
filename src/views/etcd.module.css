@@ -28,3 +28,9 @@
 .options label {
     padding-left: 15px;
 }
+.toolbar {
+    height: 30px;
+    border-top: 1px #ccc solid;
+    display: flex;
+    justify-content: space-between;
+}

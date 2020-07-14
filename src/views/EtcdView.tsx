@@ -22,6 +22,10 @@ interface EditorValue {
     key: string
     value: string
     ssv: string
+    createRevision: number
+    modeRevision: number
+    version: number
+    lease: number
 }
 
 enum Language {
@@ -123,6 +127,9 @@ export default class EtcdView extends Vue<EtcdViewParams> {
                         if (value.ssv === value.value) {
                             value.value = newVal
                         }
+                        value.createRevision = item.create_revision
+                        value.modeRevision = item.mod_revision
+                        value.version = item.version
                         value.ssv = newVal
                     }
                 }
@@ -142,7 +149,8 @@ export default class EtcdView extends Vue<EtcdViewParams> {
         }
         const [endpoints, auth, hosts, prefix = '\x00', options = {}] = path
         // eslint-disable-next-line no-console
-        console.info('[updateRoot] [%s] [%s] prefix: [%s] option:', auth, endpoints, prefix, options)
+        console.info('[updateRoot] dns: [%s] regexp: [%s], path:', this.dsn, DSN_REGEXP, path)
+        console.info('[updateRoot] [%s] [%s] prefix: [%s], option:', auth, endpoints, prefix, options)
         const chan = this.channel = await this.etcdpad.get(prefix, true)
         this.data = new Map<string, KeyOnly>()
         this.tree = new DirTreeRoot<KeyOnly>(hosts, '/')
@@ -226,6 +234,10 @@ export default class EtcdView extends Vue<EtcdViewParams> {
                 key,
                 value: decode(item.value),
                 ssv: decode(item.value),
+                createRevision: item.create_revision,
+                modeRevision: item.mod_revision,
+                version: item.version,
+                lease: item.lease,
             })
         }
         this.tabActive = key
@@ -250,7 +262,6 @@ export default class EtcdView extends Vue<EtcdViewParams> {
                 <Tabs class={style.preview} onClose={this.closeTab} onInput={v => this.tabActive = v} value={this.tabActive} slot="end">
                     { this.values.map(x => {
                         return <TabPane isModify={ x.value !== x.ssv } name={x.key} title={x.key} key={x.key}>
-                            <CopyTextView dark noborder label="full key:" value={x.key}></CopyTextView>
                             <EditorPane x={x} key={x.key} onInput={ value => x.value = value } onSave={value => this.save(x.key, value)}></EditorPane>
                         </TabPane>
                     })}
@@ -300,7 +311,15 @@ class EditorPane extends Vue<{x: EditorValue}, CodeEditorEvents> {
         return isJson(this.x.value) ? 'json' : 'text'
     }
     public render() {
-        return <CodeEditor value={this.x.value} onChange={this.change} onInput={this.input} onSave={this.save} language={this.lang}></CodeEditor>
+        return <div class={style.preview}>
+            <CodeEditor value={this.x.value} onChange={this.change} style="height: calc(100% - 31px);" onInput={this.input} onSave={this.save} language={this.lang}></CodeEditor>
+            <div class={style.toolbar}>
+                <CopyTextView dark noborder label="Full Key" value={this.x.key}></CopyTextView>
+                <CopyTextView dark noborder label="Create Revision" value={this.x.createRevision.toString()}></CopyTextView>
+                <CopyTextView dark noborder label="Mod Revision" value={this.x.modeRevision.toString()}></CopyTextView>
+                <CopyTextView dark noborder label="version" value={this.x.version.toString()}></CopyTextView>
+            </div>
+        </div>
     }
     @Emit('save')
     // eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/no-empty-function

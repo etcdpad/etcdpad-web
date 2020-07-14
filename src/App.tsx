@@ -26,6 +26,7 @@ export default class App extends Vue<{}> {
         if (!dsn) return
         this.recentList.unshift(dsn)
         this.recentList = uniq(this.recentList)
+        this.etcddsn = this.recentList[0]
         localStorage.setItem(LAST_ETCD_DSN_LIST, JSON.stringify(this.recentList))
         this.done = true
     }

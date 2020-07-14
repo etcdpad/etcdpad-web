@@ -3,6 +3,8 @@
     flex-direction: row;
     justify-content: center;
     justify-items: center;
+    border-right: #fff 1px solid;
+    flex-grow: 1;
 }
 .text_pb {
     composes: text_pb__noborder;
@@ -17,6 +19,8 @@
 .preview {
     padding: 4px 10px;
     color: #888;
+    flex-grow: 1;
+    text-align: right;
 }
 .btn {
     font-size: 20px;
@@ -29,7 +33,7 @@
 }
 
 .dark .label {
-    border-right: none;
+    border-right: #aaa 1px solid;
 }
 .dark .preview {
     color: #eee;
