@@ -266,7 +266,6 @@ export default class EtcdView extends Vue<EtcdViewParams> {
             <SpliterPanel value={ 400 } min={ 400 } max={ 800 }>
                 <TreeView data={this.tree} menulist={this.menulist} onChoose={this.handleTree} onMenu={this.handleMenu} slot="front">
                     <div class="btn-group" slot="helper">
-                        <span class="revision">{ this.clusterInfo.revision }</span>
                         <button onClick={ this.showAddDialog }>Add New</button>
                         <button onClick={ this.reflash }>Reflash</button>
                     </div>
