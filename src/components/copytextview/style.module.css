@@ -12,15 +12,21 @@
     border-radius: 5px;
 }
 .label {
+    flex: 0 0 0px;
     padding: 4px 10px;
     border-right: 1px #eee solid;
     color: #e1e1e1;
+    white-space: nowrap;
 }
 .preview {
     padding: 4px 10px;
     color: #888;
     flex-grow: 1;
     text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 0;
 }
 .btn {
     font-size: 20px;
@@ -34,6 +40,10 @@
 
 .dark .label {
     border-right: #aaa 1px solid;
+}
+.dark .label:last-child {
+    border-right-style: none;
+    border-right-width: 0;
 }
 .dark .preview {
     color: #eee;

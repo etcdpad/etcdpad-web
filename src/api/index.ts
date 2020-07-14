@@ -23,12 +23,14 @@ export enum EtcdPadEvent {
     Close,
     Error,
     Data,
+    Revision
 }
 
 export class EtcdPad extends EventEmitter {
     public endpoint: string
     public backendUrl: string
     public timeout: number
+    public revision = 0
     private ws: WebSocket
     private timer = 0
     private idGen = new IncGen()
@@ -71,6 +73,13 @@ export class EtcdPad extends EventEmitter {
             console.error('json parse error. raw:', rawMessage)
             return
         }
+        if (message.success) {
+            const revision = message.event?.header?.revision ?? 0
+            if (this.revision < revision) {
+                this.revision = revision
+                this.iemit(EtcdPadEvent.Revision, revision)
+            }
+        }
         switch (message.action) {
             case MessageType.Create:
             case MessageType.Query:
@@ -106,6 +115,7 @@ export class EtcdPad extends EventEmitter {
     private iemit(type: EtcdPadEvent.Reconnect): void
     private iemit(type: EtcdPadEvent.Open): void
     private iemit(type: EtcdPadEvent.Error, error: Error): void
+    private iemit(type: EtcdPadEvent.Revision, revision: number): void
     private iemit(type: EtcdPadEvent.Data, data: EtcdCreateEvent | EtcdDeleteEvent | EtcdUpdateEvent): void
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     private iemit(type: EtcdPadEvent, ...args: any[]): void {
@@ -115,6 +125,7 @@ export class EtcdPad extends EventEmitter {
     public on(type: EtcdPadEvent.Reconnect, listener: () => void): this
     public on(type: EtcdPadEvent.Open, listener: () => void): this
     public on(type: EtcdPadEvent.Error, listener: (error: Error) => void): this
+    public on(type: EtcdPadEvent.Revision, listener: (revision: number) => void): this
     public on(type: EtcdPadEvent.Data, listener: (data: EtcdCreateEvent | EtcdDeleteEvent | EtcdUpdateEvent) => void): this
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     public on(type: EtcdPadEvent, listener: (...args: any[]) => void): this {

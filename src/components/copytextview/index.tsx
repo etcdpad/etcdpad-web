@@ -6,7 +6,7 @@ const DEFAULT_TRANSITION_DURATION_MS = 1000
 
 interface CopyTextViewParam {
     label?: string
-    value: string
+    value: string | number
     noborder?: boolean
     dark?: boolean
 }

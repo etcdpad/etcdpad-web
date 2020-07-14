@@ -26,6 +26,10 @@ export enum EtcdEventType {
 
 export type CommunicateResponse = CommunicateSuccessResponse<EtcdEvent> | CommunicateWatchEventResponse | CommunicateFailResponse
 
+export function isFailResponse(event: CommunicateResponse): event is CommunicateSuccessResponse<EtcdEvent> | CommunicateWatchEventResponse  {
+    return event.success
+}
+
 export interface CommunicateSuccessResponse<T extends EtcdEvent> {
     id: string
     action: MessageType

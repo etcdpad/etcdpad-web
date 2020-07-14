@@ -1,4 +1,4 @@
-import { Component, Prop, Emit, Ref } from 'vue-property-decorator'
+import { Component, Prop, Emit, Ref, Watch } from 'vue-property-decorator'
 import { ChannelState, Channel } from 'node-channel'
 import { Vue } from '@/tsx'
 import { TreeView, ITreeNode, isFile, isDir } from '@/components/tree'
@@ -26,6 +26,10 @@ interface EditorValue {
     modeRevision: number
     version: number
     lease: number
+}
+
+interface ClusterInfo {
+    revision: number
 }
 
 enum Language {
@@ -63,6 +67,9 @@ export default class EtcdView extends Vue<EtcdViewParams> {
     private isShowAddDialog = false
     private createKey = ''
     private createValue = ''
+    private clusterInfo: ClusterInfo = {
+        revision: 0,
+    }
     private createLang: Language = Language.PlainText
     private autoTrim: TrimType = TrimType.None
     private closeTab(key: string): void {
@@ -94,6 +101,11 @@ export default class EtcdView extends Vue<EtcdViewParams> {
         this.etcdpad.once(EtcdPadEvent.Open, this.updateRoot)
         this.etcdpad.once(EtcdPadEvent.Reconnect, this.updateRoot)
         this.etcdpad.on(EtcdPadEvent.Data, this.changeData)
+        this.etcdpad.on(EtcdPadEvent.Revision, this.changeRevision)
+    }
+    private changeRevision(revision: number) {
+        if (!revision) return
+        this.clusterInfo.revision = revision
     }
     private changeData(event: EtcdCreateEvent | EtcdDeleteEvent | EtcdUpdateEvent) {
         switch (event.type) {
@@ -254,6 +266,7 @@ export default class EtcdView extends Vue<EtcdViewParams> {
             <SpliterPanel value={ 400 } min={ 400 } max={ 800 }>
                 <TreeView data={this.tree} menulist={this.menulist} onChoose={this.handleTree} onMenu={this.handleMenu} slot="front">
                     <div class="btn-group" slot="helper">
+                        <span class="revision">{ this.clusterInfo.revision }</span>
                         <button onClick={ this.showAddDialog }>Add New</button>
                         <button onClick={ this.reflash }>Reflash</button>
                     </div>
@@ -261,7 +274,7 @@ export default class EtcdView extends Vue<EtcdViewParams> {
                 <Tabs class={style.preview} onClose={this.closeTab} onInput={v => this.tabActive = v} value={this.tabActive} slot="end">
                     { this.values.map(x => {
                         return <TabPane isModify={ x.value !== x.ssv } name={x.key} title={x.key} key={x.key}>
-                            <EditorPane x={x} key={x.key} onInput={ value => x.value = value } onSave={value => this.save(x.key, value)}></EditorPane>
+                            <EditorPane x={x} clusterInfo={this.clusterInfo} key={x.key} onInput={ value => x.value = value } onSave={value => this.save(x.key, value)}></EditorPane>
                         </TabPane>
                     })}
                 </Tabs>
@@ -303,9 +316,11 @@ function isJson(json: string): boolean {
 }
 
 @Component
-class EditorPane extends Vue<{x: EditorValue}, CodeEditorEvents> {
+class EditorPane extends Vue<{x: EditorValue; clusterInfo: ClusterInfo}, CodeEditorEvents> {
     @Prop()
     x!: EditorValue
+    @Prop()
+    clusterInfo!: ClusterInfo
     get lang() {
         return isJson(this.x.value) ? 'json' : 'text'
     }
@@ -317,6 +332,7 @@ class EditorPane extends Vue<{x: EditorValue}, CodeEditorEvents> {
                 <CopyTextView dark noborder label="Create Revision" value={this.x.createRevision.toString()}></CopyTextView>
                 <CopyTextView dark noborder label="Mod Revision" value={this.x.modeRevision.toString()}></CopyTextView>
                 <CopyTextView dark noborder label="version" value={this.x.version.toString()}></CopyTextView>
+                <CopyTextView dark noborder label="Revision" value={this.clusterInfo.revision}></CopyTextView>
             </div>
         </div>
     }
